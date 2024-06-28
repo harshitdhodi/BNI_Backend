@@ -15,21 +15,21 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-  'http://localhost:5173',  // Development
-  'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
-];
+// const allowedOrigins = [
+//   'http://localhost:5173',  // Development
+//   'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
+// ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+// }));
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE_URI, {
@@ -43,6 +43,7 @@ mongoose.connect(process.env.DATABASE_URI, {
     console.error("Failed to connect to MongoDB", err);
   });
 
+  
 // API routes
 app.get('/countries', (req, res) => {
   const countries = Country.getAllCountries().map(country => ({
@@ -87,17 +88,17 @@ const image = require("./route/image");
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Route setup
-app.use("/user", user);
-app.use("/country", country);
-app.use("/city", city2);
-app.use("/chapter", chapter);
-app.use("/department", department);
-app.use("/member", member);
-app.use("/myGives", myGives);
-app.use("/client", client);
-app.use("/myAsk", myAsk);
-app.use("/match2", mymatch);
-app.use("/image", image);
+app.use("/api/user", user);
+app.use("/api/country", country);
+app.use("/api/city", city2);
+app.use("/api/chapter", chapter);
+app.use("/api/department", department);
+app.use("/api/member", member);
+app.use("/api/myGives", myGives);
+app.use("/api/client", client);
+app.use("/api/myAsk", myAsk);
+app.use("/api/match2", mymatch);
+app.use("/api/image", image);
 
 // Test route
 app.get("/test", (req, res) => {
