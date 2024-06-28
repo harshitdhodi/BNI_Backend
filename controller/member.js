@@ -48,7 +48,7 @@ const memberRegistration = async (req, res) => {
     await doc.save();
     
     // Respond with success message
-    res.status(200).send({ status: "true", message: "Member Registered Successfully" });
+    res.status(200).send({ status: "true", message: "Member Registered Successfully" , doc});
   } catch (error) {
     console.error(error);
     res.status(500).send({ status: "failed", message: "Unable to register" });
@@ -100,6 +100,7 @@ const memberLogin = async (req, res) => {
       status: "success",
       message: "Login success",
       token: token,
+      userId
     });
   } catch (error) {
     console.error(error);
