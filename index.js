@@ -88,17 +88,17 @@ const image = require("./route/image");
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Route setup
-app.use("/api/user", user);
-app.use("/api/country", country);
-app.use("/api/city", city2);
-app.use("/api/chapter", chapter);
-app.use("/api/department", department);
-app.use("/api/member", member);
-app.use("/api/myGives", myGives);
-app.use("/api/client", client);
-app.use("/api/myAsk", myAsk);
-app.use("/api/match2", mymatch);
-app.use("/api/image", image);
+app.use("/user", user);
+app.use("/country", country);
+app.use("/city", city2);
+app.use("/chapter", chapter);
+app.use("/department", department);
+app.use("/member", member);
+app.use("/myGives", myGives);
+app.use("/client", client);
+app.use("/myAsk", myAsk);
+app.use("/match2", mymatch);
+app.use("/image", image);
 
 // Test route
 app.get("/test", (req, res) => {
