@@ -11,6 +11,23 @@ const customerSchema = new mongoose.Schema({
     type: String,
     require: true,
     trim: true,
+  }, 
+  mobile: {
+    type: String,
+    require: true,
+    trim: true,
+  },
+  country: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  chapter: {
+    type: String,
+    required: true,
   },
   password: {
     type: String,

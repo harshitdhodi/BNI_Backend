@@ -16,18 +16,16 @@ exports.createCountry = async (req, res) => {
 // READ - GET all
 exports.getCountries = async (req, res) => {
     try {
-        const { page = 1 } = req.query;
-        const limit = 5;
+        // const { page = 1 } = req.query;
+        // const limit = 5;
         const count = await Country.countDocuments();
         const countries = await Country.find()
-            .skip((page - 1) * limit) // Skip records for previous pages
-            .limit(limit);
+            // .skip((page - 1) * limit) // Skip records for previous pages
+            // .limit(limit);
 
         res.status(200).json({
             data: countries,
-            total: count,
-            currentPage: page,
-            hasNextPage: count > page * limit,
+           
             message: "Countries fetched successfully",
         });
     } catch (err) {

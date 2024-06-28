@@ -1,5 +1,5 @@
 const myGives = require('../model/myGives');
-const User = require('../model/customer'); // If needed
+const User = require('../model/member'); // If needed
 
 // POST /api/companies
 const addMyGives = async (req, res) => {

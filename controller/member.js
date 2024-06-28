@@ -1,4 +1,4 @@
-const Customer = require("../model/customer.js");
+const Member = require("../model/member.js");
 const bcrypt = require("bcrypt");
 // const transporter = require("../db/emailConfig.js");
 const Jwt = require("jsonwebtoken");
@@ -7,18 +7,18 @@ const {
   validateEmail,
 } = require("../utils/allValidations.js");
 
-const customerRegistration = async (req, res) => {
-  const { name, email, password, confirm_password } = req.body;
+const memberRegistration = async (req, res) => {
+  const { name, email,mobile, password, confirm_password, country, city, chapter } = req.body;
 
   try {
     // Check if the email already exists
-    const customer = await Customer.findOne({ email: email });
-    if (customer) {
+    const member = await Member.findOne({ email: email });
+    if (member) {
       return res.send({ status: "failed", message: "Email already exists" });
     }
 
     // Check if all required fields are provided
-    if (!name || !email || !password || !confirm_password) {
+    if (!name || !email || !mobile|| !password || !confirm_password || !country || !city || !chapter) {
       console.log("Validation failed.......");
       return res.send({ status: "failed", message: "All fields are required" });
     }
@@ -35,16 +35,20 @@ const customerRegistration = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    // Save the customer to the database
-    const doc = new Customer({
-      name: name,
-      email: email,
+    // Save the member to the database
+    const doc = new Member({
+      name,
+      email,
+      mobile,
+      country,
+      city,
+      chapter,
       password: hashPassword,
     });
     await doc.save();
     
-    // Redirect to the login page
-    res.status(200).send({ status: "true", message: "customer Register Successfully" });
+    // Respond with success message
+    res.status(200).send({ status: "true", message: "Member Registered Successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).send({ status: "failed", message: "Unable to register" });
@@ -53,7 +57,7 @@ const customerRegistration = async (req, res) => {
 
 
 // Login from
-const customerLogin = async (req, res) => {
+const memberLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -62,20 +66,20 @@ const customerLogin = async (req, res) => {
         .json({ status: "failed", message: "All fields are required" });
     }
 
-    const customer = await Customer.findOne({ email: email });
-    if (!customer) {
+    const member = await Member.findOne({ email: email });
+    if (!member) {
       return res
         .status(404)
-        .json({ status: "failed", message: "You are not a registered customer" });
+        .json({ status: "failed", message: "You are not a registered member" });
     }
 
-    const isMatch = await bcrypt.compare(password, customer.password);
+    const isMatch = await bcrypt.compare(password, member.password);
     if (!isMatch) {
       return res
         .status(401)
         .json({ status: "failed", message: "Email or password is not valid" });
     }
-  const userId= customer._id;
+  const userId= member._id;
     // Generate JWT Token
     const token = Jwt.sign({ userId:userId }, process.env.JWT_SECRET_KEY, {
       expiresIn: "5d",
@@ -108,7 +112,7 @@ const customerLogin = async (req, res) => {
 
 //forgot password
 
-const sendcustomerPasswordResetEmail = async (req, res) => {
+const sendmemberPasswordResetEmail = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -119,25 +123,25 @@ const sendcustomerPasswordResetEmail = async (req, res) => {
         .json({ success: false, message: "Invalid email format" });
     }
 
-    // Check if the customer exists
-    const customer = await Customer.findOne({ email });
-    if (!customer) {
+    // Check if the member exists
+    const member = await Member.findOne({ email });
+    if (!member) {
       return res
         .status(404)
-        .json({ success: false, message: "customer not found" });
+        .json({ success: false, message: "member not found" });
     }
-    console.log(customer,"customer")
+    console.log(member,"member")
     // Generate OTP
     const otp = generateOTP();
 
-    // Save the OTP to the customer's document (optional)
-    customer.resetOTP = otp;
-    await customer.save();
+    // Save the OTP to the member's document (optional)
+    member.resetOTP = otp;
+    await member.save();
 
     // Send email with OTP
     const subject = "Password Reset OTP";
     const text = `Your OTP for password reset is: ${otp}`;
-    await sendEmail(customer.email, subject, text);
+    await sendEmail(member.email, subject, text);
     // res.redirect("/reset_password");
     // Return success response
     return res.json({ success: true, message: "OTP sent to your email" });
@@ -149,20 +153,20 @@ const sendcustomerPasswordResetEmail = async (req, res) => {
   }
 };
 
-const customerPasswordReset = async (req, res) => {
+const memberPasswordReset = async (req, res) => {
   try {
     const { otp, newPassword } = req.body;
 
-    // Check if the customer exists
-    const customer = await Customer.findOne({ resetOTP: otp });
-    if (!customer) {
+    // Check if the member exists
+    const member = await Member.findOne({ resetOTP: otp });
+    if (!member) {
       return res
         .status(404)
-        .json({ success: false, message: "customer not found" });
+        .json({ success: false, message: "member not found" });
     }
 
     // Verify OTP
-    if (customer.resetOTP !== otp) {
+    if (member.resetOTP !== otp) {
       return res.status(401).json({ success: false, message: "Invalid OTP" });
     }
 
@@ -171,9 +175,9 @@ const customerPasswordReset = async (req, res) => {
     const hashPassword = await bcrypt.hash(newPassword, salt);
 
     // Update password
-    customer.password = hashPassword;
-    customer.resetOTP = undefined; // Clear the OTP field
-    await customer.save();
+    member.password = hashPassword;
+    member.resetOTP = undefined; // Clear the OTP field
+    await member.save();
     // res.redirect("/login");
     // Return success response
     return res.json({ success: true, message: "Password reset successfully" });
@@ -185,7 +189,7 @@ const customerPasswordReset = async (req, res) => {
   }
 };
 
-const logoutcustomer = async (req, res) => {
+const logoutmember = async (req, res) => {
   try {
     // Clear the token cookie
     res.clearCookie('token', { 
@@ -194,7 +198,7 @@ const logoutcustomer = async (req, res) => {
       secure:true 
 
     });
-    return res.status(200).json({ success: true, message: "customer logged out successfully" });
+    return res.status(200).json({ success: true, message: "member logged out successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -202,14 +206,14 @@ const logoutcustomer = async (req, res) => {
 };
 
 
-const getcustomerById = async (req, res) => {
+const getmemberById = async (req, res) => {
   try {
-    const customerId =  req.customerId;
-    const customer = await Customer.findById(customerId);
-    if (!customer) {
-      return res.status(404).json({ message: "customer not found" });
+    const memberId =  req.userId;
+    const member = await Member.findById(memberId);
+    if (!member) {
+      return res.status(404).json({ message: "member not found" });
     }
-    res.status(200).json({ data: customer });
+    res.status(200).json({ data: member });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -217,23 +221,23 @@ const getcustomerById = async (req, res) => {
 };
 
 
-const getAllCustomer = async (req, res) => {
+const getAllmember = async (req, res) => {
   try {
     const { page = 1 } = req.query;
         const limit = 5;
-        const count = await Customer.countDocuments();
-    const customer = await Customer.find()
+        const count = await Member.countDocuments();
+    const member = await Member.find()
     .skip((page - 1) * limit) // Skip records for previous pages
     .limit(limit);;
-    if (!customer) {
-      return res.status(404).json({ message: "customer not found" });
+    if (!member) {
+      return res.status(404).json({ message: "member not found" });
     }
     res.status(200).send({
-      data: customer,
+      data: member,
       total: count,
       currentPage: page,
       hasNextPage: count > page * limit,
-      message: "customer fetched successfully",
+      message: "member fetched successfully",
   });
   } catch (error) {
     console.error(error);
@@ -242,42 +246,42 @@ const getAllCustomer = async (req, res) => {
 };
 
 
-const updatecustomerById = async (req, res) => {
+const updatememberById = async (req, res) => {
   try {
     const { id } = req.params;
-    const customerData = req.body;
-    const updatedcustomer = await Customer.findByIdAndUpdate(id, customerData, { new: true });
-    if (!updatedcustomer) {
-      return res.status(404).json({ message: "customer not found" });
+    const memberData = req.body;
+    const updatedmember = await Member.findByIdAndUpdate(id, memberData, { new: true });
+    if (!updatedmember) {
+      return res.status(404).json({ message: "member not found" });
     }
-    res.status(200).json({ data: updatedcustomer });
+    res.status(200).json({ data: updatedmember });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-const deletecustomerById = async (req, res) => {
+const deletememberById = async (req, res) => {
   try {
     const { id } = req.query;
-    const deletedcustomer = await Customer.findByIdAndDelete(id);
-    if (!deletedcustomer) {
-      return res.status(404).json({ message: "customer not found" });
+    const deletedmember = await Member.findByIdAndDelete(id);
+    if (!deletedmember) {
+      return res.status(404).json({ message: "member not found" });
     }
-    res.status(200).json({ message: "customer deleted successfully" });
+    res.status(200).json({ message: "member deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-const TotalCustomer = async (req, res) => {
+const Totalmember = async (req, res) => {
   try {
-    const TotalCustomers = await Customer.find().countDocuments();
-      console.log(TotalCustomers);
+    const Totalmembers = await Member.find().countDocuments();
+      console.log(Totalmembers);
       return res
       .status(200)
-      .json({success:true , message:`total Customers are ${TotalCustomers}`, TotalCustomers })
+      .json({success:true , message:`total members are ${Totalmembers}`, Totalmembers })
 
   } catch (error) {
       console.log(error)
@@ -288,14 +292,14 @@ const TotalCustomer = async (req, res) => {
 }
 
 module.exports = {
-  customerRegistration,
-  customerLogin,
-  sendcustomerPasswordResetEmail,
-  customerPasswordReset,
-  logoutcustomer,
-  getcustomerById,
-  updatecustomerById,
-  deletecustomerById,
-  getAllCustomer,
-  TotalCustomer
+  memberRegistration,
+  memberLogin,
+  sendmemberPasswordResetEmail,
+  memberPasswordReset,
+  logoutmember,
+  getmemberById,
+  updatememberById,
+  deletememberById,
+  getAllmember,
+  Totalmember
 };

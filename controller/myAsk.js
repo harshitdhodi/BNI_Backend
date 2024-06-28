@@ -1,5 +1,5 @@
 const MyAsk = require('../model/myAsk');
-const User = require('../model/customer');
+const User = require('../model/member');
 
 const addMyAsk = async (req, res) => {
   try {
