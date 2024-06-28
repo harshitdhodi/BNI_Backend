@@ -14,8 +14,20 @@ const app = express();
 // Middleware setup
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = [
+  'http://localhost:5173',  // Development
+  'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
+];
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
@@ -71,7 +83,7 @@ const client = require("./route/client");
 const mymatch = require("./route/myMaches");
 const image = require("./route/image");
 
-// Serve static files from the 'build' directory
+// Serve static files from the 'dist' directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Route setup
