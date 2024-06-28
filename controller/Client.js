@@ -1,12 +1,12 @@
 const Client = require('../model/client');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Example controller function to create a new Client
 
 const addClient = async (req, res) => {
     try {
       const { country, city, chapter, email, password, confirm_password } = req.body;
-  console.log(country, city, chapter, email, password, confirm_password )
+      console.log(country, city, chapter, email, password, confirm_password )
       // Check if confirm_password is provided
       if (!confirm_password) {
         return res.status(400).json({ status: 'failed', message: 'Confirm password is required' });

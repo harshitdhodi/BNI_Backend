@@ -1,5 +1,5 @@
 const Member = require("../model/member.js");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 // const transporter = require("../db/emailConfig.js");
 const Jwt = require("jsonwebtoken");
 const { generateOTP, sendEmail } = require("../utils/emailUtils.js");
