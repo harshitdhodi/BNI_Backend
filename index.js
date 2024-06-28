@@ -15,21 +15,21 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-  'http://localhost:5173',  // Development
-  'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
-];
+// const allowedOrigins = [
+//   'http://localhost:5173',  // Development
+//   'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
+// ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+// }));
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE_URI, { 
@@ -85,7 +85,7 @@ const mymatch = require("./route/myMaches");
 const image = require("./route/image");
 
 // Serve static files from the 'dist' directory
-app.use(express.static(path.join(__dirname, 'dist')));
+// app.use(express.static(path.join(__dirname, 'dist')));
 
 // Route setup
 app.use("/user", user);
@@ -106,9 +106,9 @@ app.get("/test", (req, res) => {
 });
 
 // Catch-all route to serve index.html for any other request
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// });
 
 // Start server
 const port = process.env.PORT || 3002;
