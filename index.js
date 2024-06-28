@@ -87,7 +87,7 @@ const image = require("./route/image");
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Route setup
-app.use("api/user", user);
+app.use("/user", user);
 app.use("/country", country);
 app.use("/city", city2);
 app.use("/chapter", chapter);
