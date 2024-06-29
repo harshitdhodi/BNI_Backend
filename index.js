@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 const allowedOrigins = [
-  'http://localhost:5173',  // Development
+  // 'http://localhost:5173',  // Development
   'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
 ];
 
