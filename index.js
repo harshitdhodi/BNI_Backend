@@ -2,11 +2,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const cron = require("node-cron");
-// const cors = require("cors");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { City } = require('country-state-city');
 const { Country } = require('country-state-city');
-const { flags } = require('country-flags-svg');
 require("dotenv").config();
 
 const app = express();
@@ -15,21 +14,21 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// const allowedOrigins = [
-//   'http://localhost:5173',  // Development
-//   'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
-// ];
+const allowedOrigins = [
+  'http://localhost:5173',  // Development
+  'https://bni-dashboard-new.onrender.com'  // Replace with your actual production domain
+];
 
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   credentials: true,
-// }));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE_URI, { 
@@ -43,7 +42,6 @@ mongoose.connect(process.env.DATABASE_URI, {
     console.error("Failed to connect to MongoDB", err);
   });
 
-  
 // API routes
 app.get('/countries', (req, res) => {
   const countries = Country.getAllCountries().map(country => ({
