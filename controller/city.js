@@ -5,32 +5,53 @@ const City = require('../model/city');
 
 const Country = require("../model/country");
 
-addCity = async (req, res) => {
+const { City: CityLib } = require('country-state-city');
+const { Country: CountryLib } = require('country-state-city');
+
+const addCity = async (req, res) => {
     try {
-      const { name, countryName } = req.body;
-      console.log(countryName)
-      if (!name || !countryName) {
-        return res.status(400).json({ message: "Name and country name are required" });
+      console.log("Fetching and saving cities...");
+      const countries = CountryLib.getAllCountries();
+  
+      for (const country of countries) {
+        console.log(`Processing country: ${country.name} (${country.isoCode})`);
+  
+        // Find or create country in the database
+        let dbCountry = await Country.findOne({ short_name: country.isoCode });
+  
+        if (!dbCountry) {
+          dbCountry = new Country({
+            name: country.name,
+            short_name: country.isoCode,
+            photo: [`https://flagcdn.com/w320/${country.isoCode.toLowerCase()}.png`]
+          });
+          dbCountry = await dbCountry.save();
+          console.log(`Saved new country: ${dbCountry.name}`);
+        }
+  
+        const cities = CityLib.getCitiesOfCountry(country.isoCode);
+  
+        for (const city of cities) {
+          let dbCity = await City.findOne({ name: city.name, countryName: dbCountry._id });
+          
+          if (!dbCity) {
+            dbCity = new City({
+              name: city.name,
+              countryName: dbCountry._id,
+            });
+            await dbCity.save();
+            console.log(`Saved new city: ${city.name}`);
+          }
+        }
       }
   
-      // Find the country by name
-      const country = await Country.findOne({ name: countryName });
-      console.log(country)
-      if (!country) {
-        return res.status(404).json({ message: "Country not found" });
-      }
-  console.log(country._id)
-      const city = new City({
-        name,
-        countryName: country._id,
-      }); 
-  console.log(city)
-      const savedCity = await city.save();
-      res.status(201).json(savedCity);
+      res.status(201).json({ message: "Cities have been fetched and saved successfully" });
     } catch (error) {
+      console.error('Error:', error);
       res.status(500).json({ message: error.message });
     }
   };
+
 
 
 // Get all city
