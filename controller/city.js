@@ -61,8 +61,8 @@ const getCity = async (req, res) => {
         // const limit = 5;
         // const count = await City.countDocuments();
         const city = await City.find()
-        .skip((page - 1) * limit) // Skip records for previous pages
-        .limit(limit);
+        // .skip((page - 1) * limit) // Skip records for previous pages
+        // .limit(limit);
         res.status(200).send({
             data: city,
             // total: count,
