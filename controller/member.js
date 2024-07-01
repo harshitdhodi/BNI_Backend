@@ -79,22 +79,12 @@ const memberLogin = async (req, res) => {
         .status(401)
         .json({ status: "failed", message: "Email or password is not valid" });
     }
-  const userId= member._id;
+
+    const userId = member._id;
     // Generate JWT Token
-    const token = Jwt.sign({ userId:userId }, process.env.JWT_SECRET_KEY, {
+    const token = Jwt.sign({ userId: userId }, process.env.JWT_SECRET_KEY, {
       expiresIn: "5d",
     });
-
-    // Set cookie options
-    const cookieOptions = {
-      maxAge: 1000 * 60 * 60 * 24 * 5, // 5 days in milliseconds
-      httpOnly: true,
-      sameSite: 'None',
-      secure: process.env.NODE_ENV === 'development', // Use secure cookies in production
-    };
-
-    // Set the token in a cookie
-    res.cookie("token", token, cookieOptions);
 
     res.json({
       status: "success",
@@ -107,6 +97,7 @@ const memberLogin = async (req, res) => {
     res.status(500).json({ status: "failed", message: "Unable to login" });
   }
 };
+
 
 
 

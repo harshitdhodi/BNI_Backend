@@ -52,7 +52,7 @@ const addCity = async (req, res) => {
     }
   };
 
-
+ 
 
 // Get all city
 const getCity = async (req, res) => {
@@ -78,7 +78,7 @@ const getCity = async (req, res) => {
 
 // Get a single city by ID
 const getCityById = async (req, res) => {
-    try {
+    try { 
         const { id } = req.query;
         const city = await City.findById(id);
 
