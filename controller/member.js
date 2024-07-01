@@ -47,10 +47,11 @@ const memberRegistration = async (req, res) => {
     });
     console.log(newMember)
     await newMember.save();
-  console.log(newMember)
+  console.log('newMember')
     // Send email confirmation
     const subject = 'Registration Confirmation';
-    const text = `Hello ${name},\n\nThank you for registering with us. Your account has been successfully created.`;
+    const text = `Hello ${name}
+    ${email},\n\nThank you for registering with us. Your account has been successfully created.`;
     await sendEmail(email, subject, text);
   console.log(email)
 
