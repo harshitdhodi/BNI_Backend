@@ -1,56 +1,56 @@
 // controllers/countryController.js
 const City = require('../model/city');
-
-// Create a new country
-
-const Country = require("../model/country");
-
+const Country = require('../model/country');
 const { City: CityLib } = require('country-state-city');
 const { Country: CountryLib } = require('country-state-city');
 
 const addCity = async (req, res) => {
-    try {
-      console.log("Fetching and saving cities...");
-      const countries = CountryLib.getAllCountries();
-  
-      for (const country of countries) {
-        console.log(`Processing country: ${country.name} (${country.isoCode})`);
-  
-        // Find or create country in the database
-        let dbCountry = await Country.findOne({ short_name: country.isoCode });
-  
-        if (!dbCountry) {
-          dbCountry = new Country({
-            name: country.name,
-            short_name: country.isoCode,
-            photo: [`https://flagcdn.com/w320/${country.isoCode.toLowerCase()}.png`]
-          });
-          dbCountry = await dbCountry.save();
-          console.log(`Saved new country: ${dbCountry.name}`);
-        }
-  
-        const cities = CityLib.getCitiesOfCountry(country.isoCode);
-  
-        for (const city of cities) {
-          let dbCity = await City.findOne({ name: city.name, countryName: dbCountry._id });
-          
-          if (!dbCity) {
-            dbCity = new City({
-              name: city.name,
-              countryName: dbCountry._id,
-            });
-            await dbCity.save();
-            console.log(`Saved new city: ${city.name}`);
-          }
-        }
-      }
-  
-      res.status(201).json({ message: "Cities have been fetched and saved successfully" });
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ message: error.message });
+  try {
+    console.log("Deleting all existing cities...");
+    await City.deleteMany({}); // Delete all existing cities
+
+    console.log("Fetching cities of India...");
+    const countryIsoCode = 'IN';
+    const country = CountryLib.getCountryByCode(countryIsoCode);
+    const cities = CityLib.getCitiesOfCountry(countryIsoCode).slice(0, 50); // Get first 50 cities of India
+
+    if (!country) {
+      return res.status(404).json({ message: "Country not found" });
     }
-  };
+
+    // Find or create country in the database
+    let dbCountry = await Country.findOne({ short_name: country.isoCode });
+
+    if (!dbCountry) {
+      dbCountry = new Country({
+        name: country.name,
+        short_name: country.isoCode,
+        photo: [`https://flagcdn.com/w320/${country.isoCode.toLowerCase()}.png`]
+      });
+      dbCountry = await dbCountry.save();
+      console.log(`Saved new country: ${dbCountry.name}`);
+    }
+
+    console.log("Saving cities...");
+    for (const city of cities) {
+      let dbCity = await City.findOne({ name: city.name, countryName: dbCountry._id });
+
+      if (!dbCity) {
+        dbCity = new City({
+          name: city.name,
+          countryName: dbCountry._id,
+        });
+        await dbCity.save();
+        console.log(`Saved new city: ${city.name}`);
+      }
+    }
+
+    res.status(201).json({ message: "50 cities of India have been fetched and saved successfully" });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
 
  
 

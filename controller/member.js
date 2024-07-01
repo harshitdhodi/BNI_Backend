@@ -2,13 +2,13 @@ const Member = require("../model/member.js");
 const bcrypt = require("bcryptjs");
 // const transporter = require("../db/emailConfig.js");
 const Jwt = require("jsonwebtoken");
-const { generateOTP, sendEmail } = require("../utils/emailUtils.js");
+const { sendEmail } = require("../utils/memberMail.js");
 const {
   validateEmail,
 } = require("../utils/allValidations.js");
 
 const memberRegistration = async (req, res) => {
-  const { name, email,mobile, password, confirm_password, country, city, chapter } = req.body;
+  const { name, email, mobile, password, confirm_password, country, city, chapter } = req.body;
 
   try {
     // Check if the email already exists
@@ -16,13 +16,13 @@ const memberRegistration = async (req, res) => {
     if (member) {
       return res.send({ status: "failed", message: "Email already exists" });
     }
-
+  
     // Check if all required fields are provided
-    if (!name || !email || !mobile|| !password || !confirm_password || !country || !city || !chapter) {
+    if (!name || !email || !mobile || !password || !confirm_password || !country || !city || !chapter) {
       console.log("Validation failed.......");
       return res.send({ status: "failed", message: "All fields are required" });
     }
-
+  
     // Check if password and confirm_password match
     if (password !== confirm_password) {
       return res.send({
@@ -30,13 +30,13 @@ const memberRegistration = async (req, res) => {
         message: "Password and confirm password do not match",
       });
     }
-
+  
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
-
+  
     // Save the member to the database
-    const doc = new Member({
+    const newMember = new Member({
       name,
       email,
       mobile,
@@ -45,17 +45,25 @@ const memberRegistration = async (req, res) => {
       chapter,
       password: hashPassword,
     });
-    await doc.save();
-    
+    console.log(newMember)
+    await newMember.save();
+  console.log(newMember)
+    // Send email confirmation
+    const subject = 'Registration Confirmation';
+    const text = `Hello ${name},\n\nThank you for registering with us. Your account has been successfully created.`;
+    await sendEmail(email, subject, text);
+  console.log(email)
+
     // Respond with success message
-    res.status(200).send({ status: "true", message: "Member Registered Successfully" , doc});
+    res.status(200).send({ status: "success", message: "Member Registered Successfully", newMember });
   } catch (error) {
     console.error(error);
     res.status(500).send({ status: "failed", message: "Unable to register" });
-  }
+  } 
+  
 };
 
-
+ 
 // Login from
 const memberLogin = async (req, res) => {
   try {
@@ -215,24 +223,30 @@ const getmemberById = async (req, res) => {
 
 const getAllmember = async (req, res) => {
   try {
-    const { page = 1 } = req.query;
-        const limit = 5;
-        const count = await Member.countDocuments();
-    const member = await Member.find()
-    .skip((page - 1) * limit) // Skip records for previous pages
-    .limit(limit);;
-    if (!member) {
-      return res.status(404).json({ message: "member not found" });
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5;
+    // Get the total count of members
+    const count = await Member.countDocuments();
+    // Fetch members with pagination
+  // Example projection to fetch specific fields
+const members = await Member.find({}, { _id: 1, name: 1 }).skip((page - 1) * limit).limit(limit);
+
+    // Check if members were found
+    if (!members || members.length === 0) {
+      return res.status(404).json({ message: "No members found" });
     }
-    res.status(200).send({
-      data: member,
+    // Calculate if there is a next page
+    const hasNextPage = count > page * limit;
+    // Send response
+    res.status(200).json({
+      data: members,
       total: count,
       currentPage: page,
-      hasNextPage: count > page * limit,
-      message: "member fetched successfully",
-  });
+      hasNextPage: hasNextPage,
+      message: "Members fetched successfully",
+    });
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching members:', error);
     res.status(500).json({ message: "Server error" });
   }
 };

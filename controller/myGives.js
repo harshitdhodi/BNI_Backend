@@ -6,10 +6,14 @@ const addMyGives = async (req, res) => {
   try {
     // Extract company data from request body
     const { companyName, email, phoneNumber, webURL, dept } = req.body;
-    console.log('req.userId',req.userId)
-    // Check if user exists (if you need to validate userId)
-    const user = await User.findById( req.userId);
- 
+
+    // Check if userId is available in req (assuming middleware adds userId to req)
+    if (!req.userId) {
+      return res.status(401).json({ status: "failed", message: "Unauthorized" });
+    }
+
+    // Check if user exists
+    const user = await User.findById(req.userId);
     if (!user) {
       return res.status(404).json({ status: "failed", message: "User not found" });
     }
@@ -21,7 +25,7 @@ const addMyGives = async (req, res) => {
       phoneNumber,
       webURL,
       dept,
-      user // Assuming userId is provided in the request body
+      user: req.userId // Ensure userId is included
     });
 
     // Save company to the database
@@ -37,6 +41,9 @@ const addMyGives = async (req, res) => {
     res.status(500).json({ status: "failed", message: "Unable to create company" });
   }
 };
+
+module.exports = addMyGives;
+
 
 
 const getMyGivesByUserId = async (req, res) => {
