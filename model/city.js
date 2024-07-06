@@ -4,7 +4,7 @@ const Country = require("./country")
 const CitySchema = new Schema({
   name: { type: String, required: true },
   countryName: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: Country,
     required: true,
   },

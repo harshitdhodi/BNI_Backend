@@ -38,6 +38,6 @@ const upload = multer({
 
 // Middleware function to handle file uploads for shop photos
 const uploadPhoto = upload.array('photo', 5); // Accepts up to 5 photos, change as needed
-
+ 
 
 module.exports = { uploadPhoto };

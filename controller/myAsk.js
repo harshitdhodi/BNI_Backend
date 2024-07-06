@@ -11,7 +11,7 @@ const addMyAsk = async (req, res) => {
     if (!companyName || !dept || !message) {
       return res.status(400).json({
         status: "failed",
-        message: "Company name, department, and message are required"
+        message: "Company name, MyAsk, and message are required"
       });
     }
 
@@ -30,7 +30,7 @@ const addMyAsk = async (req, res) => {
     });
 
     // Save MyAsk to the database
-    const myAsks = await myAsk.save();
+    const myAsks = await myAsk.save(); 
 
     res.status(201).json({
       status: "success",
@@ -56,7 +56,7 @@ const getMyAsks = async (req, res) => {
     if (!user) {
       return res.status(404).json({ status: "failed", message: "User not found" });
     }
-
+console.log('myASk',userId)
     // Query MyAsk collection for entries associated with userId
     const userMyAsk = await MyAsk.find({ user: userId });
 
@@ -70,7 +70,44 @@ const getMyAsks = async (req, res) => {
   }
 };
 
+const MyAllAsks= async (req, res) => {
+  try {
+    const { page = 1 } = req.query;
+    const limit = 5;
+    const count = await MyAsk.countDocuments()
+    const myAllAsks= await MyAsk.find()  
+    .skip((page - 1) * limit) // Skip records for previous pages
+    .limit(limit);
+    res.status(200).json({
+      data: myAllAsks,
+      total: count,
+      currentPage: Number(page),
+      hasNextPage: count > page * limit,
+      message: "All Asks fetched successfully",
+  });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+const TotalMyAsk = async (req, res) => {
+  try {
+    const TotalMyAsks = await MyAsk.find().countDocuments();
+      console.log(TotalMyAsks);
+      return res
+      .status(200)
+      .json({success:true , message:`total MyAsks are ${TotalMyAsks}`, TotalMyAsks })
+
+  } catch (error) {
+      console.log(error)
+      return res
+      .status(500)
+      .json({success:false , message:"server error"})
+  }
+}
 module.exports = {
   addMyAsk,
-  getMyAsks
+  getMyAsks,
+  MyAllAsks,
+  TotalMyAsk
 };

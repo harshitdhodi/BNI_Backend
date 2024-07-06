@@ -1,6 +1,7 @@
 const Member = require("../model/member.js");
 const bcrypt = require("bcryptjs");
 // const transporter = require("../db/emailConfig.js");
+const mongoose = require('mongoose');
 const Jwt = require("jsonwebtoken");
 const { sendEmail } = require("../utils/memberMail.js");
 const {
@@ -8,7 +9,7 @@ const {
 } = require("../utils/allValidations.js");
 
 const memberRegistration = async (req, res) => {
-  const { name, email, mobile, password, confirm_password, country, city, chapter } = req.body;
+  const { name, email, mobile, password,keyword,confirm_password, country, city, chapter } = req.body;
 
   try {
     // Check if the email already exists
@@ -18,7 +19,7 @@ const memberRegistration = async (req, res) => {
     }
   
     // Check if all required fields are provided
-    if (!name || !email || !mobile || !password || !confirm_password || !country || !city || !chapter) {
+    if (!name || !email || !mobile || !keyword || !password || !confirm_password || !country || !city || !chapter) {
       console.log("Validation failed.......");
       return res.send({ status: "failed", message: "All fields are required" });
     }
@@ -43,6 +44,7 @@ const memberRegistration = async (req, res) => {
       country,
       city,
       chapter,
+      keyword,
       password: hashPassword,
     });
     console.log(newMember)
@@ -88,12 +90,22 @@ const memberLogin = async (req, res) => {
         .status(401)
         .json({ status: "failed", message: "Email or password is not valid" });
     }
-
-    const userId = member._id;
+  const userId= member._id;
     // Generate JWT Token
-    const token = Jwt.sign({ userId: userId }, process.env.JWT_SECRET_KEY, {
+    const token = Jwt.sign({ userId:userId }, process.env.JWT_SECRET_KEY, {
       expiresIn: "5d",
     });
+
+    // Set cookie options
+    const cookieOptions = {
+      maxAge: 1000 * 60 * 60 * 24 * 5, // 5 days in milliseconds
+      httpOnly: true,
+      sameSite: 'None',
+      secure: process.env.NODE_ENV === 'development', // Use secure cookies in production
+    };
+
+    // Set the token in a cookie
+    res.cookie("token", token, cookieOptions);
 
     res.json({
       status: "success",
@@ -209,10 +221,16 @@ const logoutmember = async (req, res) => {
 
 const getmemberById = async (req, res) => {
   try {
-    const memberId =  req.userId;
+    const memberId = req.query.id; // Extract the 'id' as a string from 'req.query'
+    
+    // Validate the ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(memberId)) {
+      return res.status(400).json({ message: "Invalid member ID" });
+    }
+
     const member = await Member.findById(memberId);
     if (!member) {
-      return res.status(404).json({ message: "member not found" });
+      return res.status(404).json({ message: "Member not found" });
     }
     res.status(200).json({ data: member });
   } catch (error) {
@@ -220,6 +238,7 @@ const getmemberById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 const getAllmember = async (req, res) => {
@@ -230,7 +249,7 @@ const getAllmember = async (req, res) => {
     const count = await Member.countDocuments();
     // Fetch members with pagination
   // Example projection to fetch specific fields
-const members = await Member.find({}, { _id: 1, name: 1 }).skip((page - 1) * limit).limit(limit);
+const members = await Member.find().skip((page - 1) * limit).limit(limit);
 
     // Check if members were found
     if (!members || members.length === 0) {
@@ -255,7 +274,7 @@ const members = await Member.find({}, { _id: 1, name: 1 }).skip((page - 1) * lim
 
 const updatememberById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     const memberData = req.body;
     const updatedmember = await Member.findByIdAndUpdate(id, memberData, { new: true });
     if (!updatedmember) {

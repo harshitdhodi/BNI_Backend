@@ -99,6 +99,7 @@ const userLogin = async (req, res) => {
         status: "success",
         message: "Login success",
         token: token,
+        User
       });
     } catch (error) {
       console.error(error);
@@ -228,18 +229,37 @@ const updateUserById = async (req, res) => {
   try {
     const userId = req.userId;
     const userData = req.body;
-    console.log(userId)
-    console.log(userData)
-    const updatedUser = await user.findByIdAndUpdate(userId, userData, { new: true });
-    if (!updatedUser) {
+
+    console.log('userId:', userId);
+    console.log('userData:', userData);
+
+    // Exclude sensitive fields from being updated
+    const { password, confirm_password, resetOTP, ...updateData } = userData;
+
+    // Add updatedAt field
+    updateData.updatedAt = Date.now();
+
+    console.log('updateData:', updateData);
+
+    // Check if the user exists before updating
+    const existingUser = await user.findById(userId);
+    if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({ data: updatedUser });
+
+    const updatedUser = await user.findByIdAndUpdate(userId, updateData, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found after update attempt" });
+    }
+
+    res.status(200).json({ data: updatedUser, message: "Update successful" });
   } catch (error) {
-    console.error(error);
+    console.error("Error updating user:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 const deleteUserById = async (req, res) => {
   try {

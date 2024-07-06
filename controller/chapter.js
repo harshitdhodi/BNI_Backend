@@ -68,7 +68,7 @@ const updatechapterById = async (req, res) => {
             $set: {
                 name,
                 updatedAt: Date.now()
-            }
+            } 
         };
 
         const chapter = await Chapter.findByIdAndUpdate(id, updateObj, { new: true });

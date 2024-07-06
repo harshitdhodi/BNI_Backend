@@ -24,7 +24,7 @@ const getDepartment = async (req, res) => {
         const count = await Department.countDocuments();
         const department = await Department.find()
         .skip((page - 1) * limit) // Skip records for previous pages
-        .limit(limit);;
+        .limit(limit);
         res.status(200).json({
             data: department,
             total: count,

@@ -25,11 +25,11 @@ router.post("/login", memberLogin);
 router.post("/forgot-password", sendmemberPasswordResetEmail);
 router.post("/reset-password", memberPasswordReset);
 router.post("/logout", logoutmember);
-router.get("/getUserById",requireAuth, getmemberById);
+router.get("/getUserById", getmemberById);
 router.get("/getAllmember", getAllmember);
 router.get("/totalmember",Totalmember);
-router.put("/updatememberById",updatememberById);
-router.delete("/deletememberById", deletememberById);
+router.put("/updatememberById",requireAuth,updatememberById);
+router.delete("/deletememberById",requireAuth, deletememberById);
 // export default router;
 
 

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
-  // _id :mongoose.Schema.Types.ObjectId,
   name: {
     type: String,
     require: true,
@@ -11,7 +10,7 @@ const customerSchema = new mongoose.Schema({
     type: String,
     require: true,
     trim: true,
-  }, 
+  },
   mobile: {
     type: String,
     require: true,
@@ -29,6 +28,10 @@ const customerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  keyword: [{
+    type: String,
+    required: true,
+  }],
   password: {
     type: String,
     require: true,
@@ -42,9 +45,9 @@ const customerSchema = new mongoose.Schema({
     require: true,
     trim: true,
   },
+}, {
+  versionKey: false // This will remove the __v field
 });
-
-//model
 
 const Customer = mongoose.model("Member", customerSchema);
 module.exports = Customer;

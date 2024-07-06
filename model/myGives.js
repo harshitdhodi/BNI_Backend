@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const User = require('../model/user')
+const Member = require('../model/member')
 const companySchema = new Schema({
   companyName: {
     type: String,
@@ -25,7 +25,7 @@ const companySchema = new Schema({
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: User,
+    ref: Member,
     required: true,
   }
 }, {

@@ -20,7 +20,7 @@ const addCity = async (req, res) => {
 
     // Find or create country in the database
     let dbCountry = await Country.findOne({ short_name: country.isoCode });
-
+console.log(dbCountry)
     if (!dbCountry) {
       dbCountry = new Country({
         name: country.name,
@@ -33,12 +33,12 @@ const addCity = async (req, res) => {
 
     console.log("Saving cities...");
     for (const city of cities) {
-      let dbCity = await City.findOne({ name: city.name, countryName: dbCountry._id });
+      let dbCity = await City.findOne({ name: city.name, countryName: dbCountry.name });
 
       if (!dbCity) {
         dbCity = new City({
           name: city.name,
-          countryName: dbCountry._id,
+          countryName: dbCountry.name,
         });
         await dbCity.save();
         console.log(`Saved new city: ${city.name}`);
