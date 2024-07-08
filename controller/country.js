@@ -17,7 +17,7 @@ exports.createCountry = async (req, res) => {
 exports.getCountries = async (req, res) => {
     try {
         const { page = 1 } = req.query;
-        const limit = 5;
+        const limit = 85;
         const count = await Country.countDocuments();
         const countries = await Country.find()
             .skip((page - 1) * limit) // Skip records for previous pages

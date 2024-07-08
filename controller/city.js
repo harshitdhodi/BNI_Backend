@@ -57,17 +57,17 @@ console.log(dbCountry)
 // Get all city
 const getCity = async (req, res) => {
     try {
-        // const { page = 1 } = req.query;
-        // const limit = 5;
-        // const count = await City.countDocuments();
+        const { page = 1 } = req.query;
+        const limit = 5;
+        const count = await City.countDocuments();
         const city = await City.find()
-        // .skip((page - 1) * limit) // Skip records for previous pages
-        // .limit(limit);
+        .skip((page - 1) * limit) // Skip records for previous pages
+        .limit(limit);
         res.status(200).send({
             data: city,
-            // total: count,
-            // currentPage: page,
-            // hasNextPage: count > page * limit,
+            total: count,
+            currentPage: page,
+            hasNextPage: count > page * limit,
             message: "cities fetched successfully",
         });
     } catch (error) {
@@ -153,11 +153,32 @@ const TotalCity = async (req, res) => {
     }
 }
 
+const getAllCity = async (req, res) => {
+    try {
+        // const { page = 1 } = req.query;
+        // const limit = 5;
+        // const count = await City.countDocuments();
+        const city = await City.find()
+        // .skip((page - 1) * limit) // Skip records for previous pages
+        // .limit(limit);
+        res.status(200).send({
+            data: city,
+            // total: count,
+            // currentPage: page,
+            // hasNextPage: count > page * limit,
+            message: "cities fetched successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching city:", error);
+        res.status(400).send(error);
+    }
+};
 module.exports = {
     addCity,
     getCity,
     getCityById,
     updateCityById,
     deleteCityById,
-    TotalCity
+    TotalCity,
+    getAllCity
 };

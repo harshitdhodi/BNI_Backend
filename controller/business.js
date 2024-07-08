@@ -77,7 +77,7 @@ getbusinessById = async (req, res) => {
     const {userId}  = req.query;
     const { page = 1 } = req.query;
     const limit = 5;
-    const count = await Member.countDocuments();
+  
     // Check if user exists (if validation is needed)
     const user = await Member.findById(userId)
     .skip((page - 1) * limit) // Skip records for previous pages
@@ -87,6 +87,7 @@ getbusinessById = async (req, res) => {
     }
 
     const myBusiness = await Business.find({ user: userId });
+    const count = await Business.countDocuments();
    console.log(myBusiness)
       res.status(200).json({
         data: myBusiness,

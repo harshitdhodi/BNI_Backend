@@ -5,7 +5,7 @@ const {addCity,
     getCity,
     getCityById,
     updateCityById,
-    deleteCityById,TotalCity} = require('../controller/city');
+    deleteCityById,TotalCity, getAllCity} = require('../controller/city');
 const { route } = require('./chapter');
 
 router.post('/addCity', addCity);
@@ -14,4 +14,5 @@ router.get('/getCityById', getCityById);
 router.put('/updateCity', updateCityById);
 router.delete('/deleteCity', deleteCityById);
 router.get('/totalCity',TotalCity)
+router.get('/getAllCity',getAllCity)
 module.exports = router;
