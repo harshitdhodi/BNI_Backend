@@ -281,6 +281,6 @@ module.exports = {
   userPasswordReset,
   logoutUser,
   getUserById,
-  updateUserById,
+  updateUserById, 
   deleteUserById
 };

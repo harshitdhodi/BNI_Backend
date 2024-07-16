@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const User = require('../model/user');
+const User = require('../model/member');
 
 const myAskSchema = new Schema({
   companyName: {

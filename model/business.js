@@ -14,8 +14,6 @@ const ProfileSchema = new Schema({
     type: String,
     required: true,
   },
-  
-  contactLinks: {
     whatsapp: {
       type: String,
       
@@ -32,12 +30,16 @@ const ProfileSchema = new Schema({
       type: String,
      
     },
-  },
+  
   designation: {
     type: String,
     required: true,
   },
   aboutCompany: {
+    type: String,
+    required: true,
+  },
+  companyName: {
     type: String,
     required: true,
   },

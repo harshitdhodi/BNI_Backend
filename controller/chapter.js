@@ -58,15 +58,34 @@ const getchapterById = async (req, res) => {
     }
 };
 
+const getChapterByCity = async (req, res) => {
+    try {
+        const { city } = req.query;
+        const chapter = await Chapter.find({ city: city });
+
+        if (!chapter) {
+            return res.status(404).send({ message: 'Chapter not found' });
+        }
+
+        res.status(200).send(chapter);
+    } catch (error) {
+        console.error("Error fetching chapter:", error);
+        res.status(400).send({ message: "An error occurred", error });
+    }
+};
+
 // Update a chapter
 const updatechapterById = async (req, res) => {
     try {
         const { id } = req.query;
-        const { name } = req.body;
+        const { name , countryName,
+            city } = req.body;
 
         const updateObj = {
             $set: {
                 name,
+                countryName,
+                city,
                 updatedAt: Date.now()
             } 
         };
@@ -126,5 +145,5 @@ module.exports = {
     updatechapterById,
     deletechapterById,
     TotalChapter,
-   
+    getChapterByCity
 };

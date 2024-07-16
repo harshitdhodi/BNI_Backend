@@ -4,7 +4,7 @@ const { addDepartment,
     getDepartment,
     getDepartmentById,
     updateDepartmentById,
-    deleteDepartmentById,TotalDepartment} = require('../controller/Department');
+    deleteDepartmentById,TotalDepartment ,getAllDepartment} = require('../controller/Department');
 const {uploadPhoto} = require('../middeleware/imageUpload');
 // Routes for CRUD operations
 router.post('/addDepartment',addDepartment);
@@ -13,4 +13,5 @@ router.get('/getDepartmentById', getDepartmentById);
 router.put('/updateDepartmentById', updateDepartmentById);
 router.delete('/deleteDepartmentById', deleteDepartmentById);
 router.get('/totalDepartment',TotalDepartment)
+router.get('/getAllDepartment',getAllDepartment)
 module.exports = router;

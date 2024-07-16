@@ -1,11 +1,12 @@
 const MyAsk = require('../model/myAsk');
 const User = require('../model/member');
-
+const mongoose = require("mongoose")
 const addMyAsk = async (req, res) => {
   try {
     // Extract data from request body
+    const { user } = req.query;
     const { companyName, dept, message } = req.body;
-    console.log('req.userId',req.userId);
+ 
 
     // Validate required fields
     if (!companyName || !dept || !message) {
@@ -15,18 +16,13 @@ const addMyAsk = async (req, res) => {
       });
     }
 
-    // Check if user exists
-    const user = await User.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({ status: "failed", message: "User not found" });
-    }
 
     // Create new MyAsk instance
     const myAsk = new MyAsk({
       companyName,
       dept,
       message,
-      user: req.userId // Ensure userId is provided correctly
+      user
     });
 
     // Save MyAsk to the database
@@ -42,6 +38,7 @@ const addMyAsk = async (req, res) => {
     res.status(500).json({ status: "failed", message: error });
   }
 };
+
 const getMyAsks = async (req, res) => {
   try {
     // Extract userId from request parameters
@@ -105,9 +102,139 @@ const TotalMyAsk = async (req, res) => {
       .json({success:false , message:"server error"})
   }
 }
+
+const deleteMyAskById = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    const myAsk = await MyAsk.findByIdAndDelete(id);
+
+    if (!myAsk) {
+      return res.status(404).send({ message: "MyAsk not found" });
+    }
+
+    res.status(200).send({ message: "MyAsk deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting MyAsk:", error);
+    res.status(400).send(error);
+  }
+};
+
+
+const updateMyAsk = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const MyAskData = req.body;
+    const updatedMyAskData = await MyAsk.findByIdAndUpdate(
+      id,
+      MyAskData,
+      { new: true }
+    );
+    if (!updatedMyAskData) {
+      return res.status(404).json({ message: "MyAsk not found" });
+    }
+    res.status(200).json({ data: updatedMyAskData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+const getMyAskById = async (req, res) => {
+  try {
+    const { id } = req.query; // Extract the 'id' as a string from 'req.query'
+
+    // Validate the ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid member ID" });
+    }
+
+    const myAsk = await MyAsk.findById(id);
+    if (!myAsk) {
+      return res.status(404).json({ message: "MyAsk not found" });
+    }
+    res.status(200).json({ data: myAsk });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+const AddGivesByEmail = async (req, res) => {
+  try {
+    const { email, companyName, dept, message } = req.body;
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Create a new MyAsk document
+    const newMyAsk = new MyAsk({
+      companyName,
+      dept,
+      message,
+      user: user._id
+    });
+
+    const savedMyAsk = await newMyAsk.save();
+    res.status(201).json(savedMyAsk);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+}
+
+
+
+const getFilteredAsks = async (req, res) => {
+  try {
+    const { companyName, dept } = req.query;
+
+    const filter = {};
+
+    if (companyName) {
+      filter.companyName = { $regex: companyName, $options: 'i' };
+    }
+    
+    if (dept) {
+      filter.dept = { $regex: dept, $options: 'i' };
+    }
+
+    // Aggregate pipeline to filter and project all fields
+    const result = await MyAsk.aggregate([
+      {
+        $match: filter
+      },
+      {
+        $project: {
+          _id: 0 // Exclude _id from the output
+          // All other fields will be included by default
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      message: "Filtered MyAsk fetched successfully",
+      result
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 module.exports = {
   addMyAsk,
   getMyAsks,
   MyAllAsks,
-  TotalMyAsk
+  TotalMyAsk,
+  deleteMyAskById,
+  updateMyAsk,
+  getMyAskById,
+  AddGivesByEmail,
+  getFilteredAsks
 };

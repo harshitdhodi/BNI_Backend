@@ -173,6 +173,26 @@ const getAllCity = async (req, res) => {
         res.status(400).send(error);
     }
 };
+
+const getCityByCountry = async (req, res) => {
+    try { 
+        const { countryName } = req.query;
+        if (!countryName) {
+            return res.status(400).send({ message: 'countryName query parameter is required' });
+        }
+
+        const city = await City.find({ countryName: countryName }); // Assuming you might want all cities in a country
+
+        if (!city || city.length === 0) {
+            return res.status(404).send({ message: 'City not found' });
+        }
+
+        res.status(200).send(city);
+    } catch (error) {
+        console.error("Error fetching city:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
 module.exports = {
     addCity,
     getCity,
@@ -180,5 +200,6 @@ module.exports = {
     updateCityById,
     deleteCityById,
     TotalCity,
-    getAllCity
+    getAllCity,
+    getCityByCountry
 };

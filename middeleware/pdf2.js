@@ -1,33 +1,44 @@
-const express = require('express');
 const multer = require('multer');
+const fs = require('fs');
 const path = require('path');
-// Set up storage engine
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads/'); // Directory to save the uploaded files
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}_${file.originalname}`); // Create a unique filename
-    }
-  });
-  
-  // Set up file filter to accept only PDF files
-  const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF files are allowed'), false);
-    }
-  };
-  
-  // Initialize multer with storage engine and file filter
-  const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: {
-      fileSize: 1024 * 1024 * 5 // Limit file size to 5MB
-    }
-  });
 
-  const uploadPdf = upload.single('catalog'); 
-  module.exports = {uploadPdf}
+// Create a custom storage engine for multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Specify the directory to save the text files
+  },
+  filename: (req, file, cb) => {
+    const { fieldname } = file;
+    const timestamp = Date.now();
+    const ext = '.txt'; // Save as .txt file
+    cb(null, `${fieldname}_${timestamp}${ext}`);
+  }
+});
+
+// Initialize multer with the custom storage engine
+const upload = multer({ storage });
+const uploadimages = upload.fields([  
+  { name: 'bannerImg', maxCount: 1 },   // Single file upload for bannerImg
+  { name: 'profileImg', maxCount: 1 }]);
+// Middleware to handle base64 images
+const base64ImageHandler = (req, res, next) => {
+  if (req.body.bannerImg) {
+    req.files = req.files || {};
+    req.files.bannerImg = {
+      fieldname: 'bannerImg',
+      buffer: Buffer.from(req.body.bannerImg, 'base64'),
+    };
+  }
+  if (req.body.profileImg) {
+    req.files = req.files || {};
+    req.files.profileImg = {
+      fieldname: 'profileImg',
+      buffer: Buffer.from(req.body.profileImg, 'base64'),
+    };
+  }
+  next(); 
+};
+module.exports = {
+  base64ImageHandler,
+  uploadimages
+}; 

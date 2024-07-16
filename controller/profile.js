@@ -15,9 +15,9 @@ const saveBase64Image = (base64Data, filename) => {
 
     fs.writeFile(filePath, fileBuffer, (err) => {
       if (err) {
-        return reject(err);
+        return reject(err); 
       }
-      resolve(filePath);
+      resolve(filePath); 
     });
   });
 };
@@ -26,6 +26,7 @@ const saveBase64Image = (base64Data, filename) => {
 const createProfile = async (req, res) => {
   const { contactLinks, designation, aboutMe, bannerImg, profileImg } = req.body;
 
+  console.log(bannerImg)
   try {
     if (!bannerImg || !profileImg) {
       return res.status(400).json({ message: 'Image data is required' });
@@ -34,7 +35,7 @@ const createProfile = async (req, res) => {
     // Save base64 images as files
     const bannerImgFileName = `bannerImg_${Date.now()}.png`;
     const profileImgFileName = `profileImg_${Date.now()}.png`;
-
+console.log(profileImgFileName)
     await saveBase64Image(bannerImg, bannerImgFileName);
     await saveBase64Image(profileImg, profileImgFileName);
 

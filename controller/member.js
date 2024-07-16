@@ -1,5 +1,7 @@
 const Member = require("../model/member.js");
 const bcrypt = require("bcryptjs");
+const path = require("path");
+
 // const transporter = require("../db/emailConfig.js");
 const mongoose = require('mongoose');
 const Jwt = require("jsonwebtoken");
@@ -10,7 +12,8 @@ const {
 
 const memberRegistration = async (req, res) => {
   const { name, email, mobile, password,keyword,confirm_password, country, city, chapter } = req.body;
-
+  const bannerImg = req.files['bannerImg'] ? path.basename(req.files['bannerImg'][0].path) : null;
+        const profileImg = req.files['profileImg'] ? path.basename(req.files['profileImg'][0].path) : null;
   try {
     // Check if the email already exists
     const member = await Member.findOne({ email: email });
@@ -42,20 +45,23 @@ const memberRegistration = async (req, res) => {
       email,
       mobile,
       country,
+      bannerImg,
+      profileImg,
       city,
       chapter,
       keyword,
       password: hashPassword,
     });
-    console.log(newMember)
+    const subject = 'Registration Confirmation';
+    await sendEmail(email, subject, name, email, mobile);
+    console.log(email)
     await newMember.save();
   console.log('newMember')
     // Send email confirmation
-    const subject = 'Registration Confirmation';
-    const text = `Hello ${name}
-    ${email},\n\nThank you for registering with us. Your account has been successfully created.`;
-    await sendEmail(email, subject, text);
-  console.log(email)
+ 
+   
+
+   
 
     // Respond with success message
     res.status(200).send({ status: "success", message: "Member Registered Successfully", newMember });
@@ -118,9 +124,6 @@ const memberLogin = async (req, res) => {
     res.status(500).json({ status: "failed", message: "Unable to login" });
   }
 };
-
-
-
 
 
 //forgot password
@@ -240,7 +243,6 @@ const getmemberById = async (req, res) => {
 };
 
 
-
 const getAllmember = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; 
@@ -273,19 +275,52 @@ const members = await Member.find().skip((page - 1) * limit).limit(limit);
 
 
 const updatememberById = async (req, res) => {
+  const { id } = req.query;
+  const updateFields = {};
+  const updatedFields = {};
+
   try {
-    const { id } = req.query;
-    const memberData = req.body;
-    const updatedmember = await Member.findByIdAndUpdate(id, memberData, { new: true });
-    if (!updatedmember) {
-      return res.status(404).json({ message: "member not found" });
+    // Handle file uploads if req.files is defined
+    if (req.files) {
+      // Process each file type (bannerImg, profileImg, catalog)
+      if (req.files['bannerImg'] && req.files['bannerImg'].length > 0) {
+        updateFields.bannerImg = path.basename(req.files['bannerImg'][0].path);
+        updatedFields.bannerImg = updateFields.bannerImg; // Include updated field in response
+      }
+      if (req.files['profileImg'] && req.files['profileImg'].length > 0) {
+        updateFields.profileImg = path.basename(req.files['profileImg'][0].path);
+        updatedFields.profileImg = updateFields.profileImg; // Include updated field in response
+      }
+     
     }
-    res.status(200).json({ data: updatedmember });
+
+    // Update other fields from req.body
+    for (const key in req.body) {
+      if (key !== 'bannerImg' && key !== 'profileImg' && key !== 'catalog') {
+        updateFields[key] = req.body[key];
+        updatedFields[key] = req.body[key]; // Include updated field in response
+      }
+    }
+
+    // Update Member data in the database
+    const updatedMember = await Member.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true, runValidators: true }
+    ); 
+
+    if (!updatedMember) {
+      return res.status(404).json({ message: 'Member not found' });
+    }
+
+    // Respond with updated fields only
+    res.status(200).json({ id: updatedMember._id, updatedFields });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 const deletememberById = async (req, res) => {
   try {
@@ -317,6 +352,28 @@ const Totalmember = async (req, res) => {
   }
 }
 
+
+getAllmemberDropdown = async (req, res) => {
+  try {
+      // const { page = 1 } = req.query;
+      // const limit = 5;
+      // const count = await members.countDocuments();
+      const members = await Member.find()
+      // .skip((page - 1) * limit) // Skip records for previous pages
+      // .limit(limit);;
+      res.status(200).json(
+        {
+          data: members,
+          // total: count,
+          // currentPage: page,
+          // hasNextPage: count > page * limit,
+          message: "members fetched successfully"
+        }
+      );
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+};
 module.exports = {
   memberRegistration,
   memberLogin,
@@ -327,5 +384,6 @@ module.exports = {
   updatememberById,
   deletememberById,
   getAllmember,
-  Totalmember
+  Totalmember,
+  getAllmemberDropdown
 };

@@ -1,25 +1,31 @@
+require('dotenv').config(); // Load environment variables
+
 const nodemailer = require('nodemailer');
+const { getEmailTemplate } = require('./mailFormate'); // Adjust path as necessary
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
-  service: 'Gmail',
+  service: 'Gmail', // Or any other email service provider
   auth: {
-    user: 'harshit.dhodi2108@gmail.com',
-    pass: "pyvokrpvpyygpdps",
+    user: process.env.EMAIL_USER, // Ensure this is set correctly
+    pass: process.env.EMAIL_PASS, // Ensure this is set correctly
   },
 });
 
-
-
-// Send email
-const sendEmail = async (to, subject, text) => {
+// Function to send email
+const sendEmail = async (to, subject, name, email, mobile) => {
   try {
+    // Generate HTML content from the template
+    const htmlContent = getEmailTemplate(name, email, mobile);
+
+    // Send email
     await transporter.sendMail({
-      from: 'harshit.dhodi2108@gmail.com',
+      from: process.env.EMAIL_USER,
       to,
       subject,
-      text,
+      html: htmlContent, // Use 'html' for HTML emails
     });
+
     console.log('Email sent successfully');
   } catch (error) {
     console.error('Error sending email:', error);
@@ -27,6 +33,5 @@ const sendEmail = async (to, subject, text) => {
 };
 
 module.exports = {
-
   sendEmail,
 };

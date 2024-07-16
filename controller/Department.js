@@ -114,11 +114,27 @@ const TotalDepartment = async (req, res) => {
         .json({success:false , message:"server error"})
     }
 }
+
+const getAllDepartment = async (req, res) => {
+    try {
+      
+        const department = await Department.find()
+        
+        res.status(200).json({
+            data: department,
+            message: "department fetched successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching Department:", error);
+        res.status(400).send(error);
+    }
+};
 module.exports = {
     addDepartment,
     getDepartment,
     getDepartmentById,
     updateDepartmentById,
     deleteDepartmentById,
-    TotalDepartment
+    TotalDepartment,
+    getAllDepartment
 };

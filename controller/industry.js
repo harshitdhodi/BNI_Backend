@@ -23,18 +23,18 @@ exports.createIndustry = async (req, res) => {
 // Get all industries
 exports.getAllIndustries = async (req, res) => {
     try {
-        const { page = 1 } = req.query;
-        const limit = 5;
-        const count = await Industry.countDocuments();
+        // const { page = 1 } = req.query;
+        // const limit = 5;
+        // const count = await Industry.countDocuments();
         const industries = await Industry.find()
-        .skip((page - 1) * limit) // Skip records for previous pages
-        .limit(limit);;
+        // .skip((page - 1) * limit) // Skip records for previous pages
+        // .limit(limit);;
         res.status(200).json(
           {
             data: industries,
-            total: count,
-            currentPage: page,
-            hasNextPage: count > page * limit,
+            // total: count,
+            // currentPage: page,
+            // hasNextPage: count > page * limit,
             message: "Industry fetched successfully"
           }
         );

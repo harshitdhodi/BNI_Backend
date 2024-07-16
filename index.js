@@ -90,7 +90,8 @@ const image = require("./route/image");
 const industry = require("./route/industry");
 const business = require("./route/business");
 const pdf = require("./route/pdf")
-const profile = require("./route/profile")
+const profile = require("./route/profile");
+const company = require("./route/company")
 // Serve static files from the 'dist' directory
 // app.use(express.static(path.join(__dirname, 'dist')));
 app.get('/download/:fileName', (req, res) => {
@@ -108,7 +109,7 @@ app.get('/download/:fileName', (req, res) => {
   }
 });
 // Route setup
-app.use("/user", user);
+app.use("/user", user); 
 app.use("/country", country);
 app.use("/city", city2);
 app.use("/chapter", chapter);
@@ -121,8 +122,9 @@ app.use("/match2", mymatch);
 app.use("/image", image);
 app.use("/industry", industry);
 app.use("/business",business)
-app.use("/pdf",pdf)
-app.use("/profile",profile)
+app.use("/pdf",pdf) 
+app.use("/profile",profile) 
+app.use("/company",company) 
 // Test route
 app.get("/test", (req, res) => {
   res.json("hello world"); 
@@ -138,3 +140,4 @@ const port = process.env.PORT || 3002;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+ 
