@@ -17,10 +17,10 @@ const sendEmail = async (to, subject, name, email, mobile) => {
   try {
     // Generate HTML content from the template
     const htmlContent = getEmailTemplate(name, email, mobile);
-
+  
     // Send email
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from:'Harshit Dhodi',
       to,
       subject,
       html: htmlContent, // Use 'html' for HTML emails

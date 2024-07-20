@@ -4,11 +4,11 @@ const Schema = mongoose.Schema;
 const IndustrySchema = new Schema ( {
     name : { type : String, required : true},
     createdAt: { type: Date, default: Date.now },
-    member: {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-        required: true,
-      },
+    // member: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Member',
+    //     required: true,
+    //   },
     updatedAt: { type: Date, default: Date.now } 
 });
 

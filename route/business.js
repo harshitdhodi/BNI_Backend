@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const mongoose = require('mongoose');
 const { createBusiness, getbusiness,businessList,deletebusiness ,updateBusinessById, getbusinessByuserId,getbusinessbyId, updateImages,updateContactLinks , updateBusinessDetails } = require('../controller/business'); // Adjust the path as needed
 const { uploadPdf } = require('../middeleware/pdf2');
 const { generatePdfMiddleware } = require('../middeleware/pdfUpload');
@@ -35,7 +36,7 @@ router.put("/updateBusinessById",requireAuth,generatePdfMiddleware,updateBusines
 router.get("/getbusinessbymyId",requireAuth,getbusinessbyId)
 router.delete("/deletebusiness",requireAuth,deletebusiness)
 // Updated route to accept user parameter
-router.post('/createProfile', generatePdfMiddleware, async (req, res) => {
+router.post('/createProfile', requireAuth, generatePdfMiddleware, async (req, res) => {
     try {
         console.log('Files:', req.files); // Log uploaded files
 
@@ -51,8 +52,8 @@ router.post('/createProfile', generatePdfMiddleware, async (req, res) => {
             companyAddress
         } = req.body;
 
-        // Extract user from req.params
-        const user = req.query.user; 
+        // Extract user ID from req.query
+        const userId = req.query.user; 
 
         // Extract filenames without path
         const bannerImg = req.files['bannerImg'] ? path.basename(req.files['bannerImg'][0].path) : null;
@@ -77,7 +78,7 @@ router.post('/createProfile', generatePdfMiddleware, async (req, res) => {
             aboutCompany,
             companyAddress,
             companyName,
-            user,
+            user: new mongoose.Types.ObjectId(userId),// Ensure user ID is cast to ObjectId
             catalog
         });
 

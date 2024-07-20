@@ -125,6 +125,7 @@ const getCompanyById = async (req, res) => {
         message: "Company fetched successfully",
       });
     } catch (error) {
+      console.log(error)
       // Handle errors, such as invalid ID format or other issues
       res.status(400).json({ error: error.message });
     }
@@ -132,6 +133,7 @@ const getCompanyById = async (req, res) => {
   
   const updateCompanyById = async (req, res) => {
     const { id } = req.query;
+    console.log('req.body')
     const updateFields = {};
     const updatedFields = {};
   
@@ -193,42 +195,48 @@ const getCompanyById = async (req, res) => {
   };
 
 const myGives = require("../model/myGives")
- const getNonExistingCompanyNames =  async (req , res) => {
-    try {
-      const result = await myGives.aggregate([
-        {
-          $lookup: {
-            from: 'companies', // The collection name for the 'Company' model
-            localField: 'companyName',
-            foreignField: 'companyName',
-            as: 'companyMatch'
-          }
-        },
-        {
-          $match: {
-            'companyMatch': { $size: 0 }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            companyName: 1
-          }
+const getNonExistingCompanyNames = async (req, res) => {
+  try {
+    const result = await myGives.aggregate([
+      {
+        $lookup: {
+          from: 'companies', // The collection name for the 'Company' model
+          localField: 'companyName',
+          foreignField: 'companyName',
+          as: 'companyMatch'
         }
-      ]);
-  
-      
+      },
+      {
+        $match: {
+          companyMatch: { $size: 0 }
+        }
+      },
+      {
+        $group: {
+          _id: "$companyName", // Group by companyName to remove duplicates
+          companyName: { $first: "$companyName" } // Take the first companyName in each group
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          companyName: 1
+        }
+      }
+    ]);
+
     const companyNames = result.map(doc => doc.companyName);
 
     res.status(200).json({
       message: "Non-existing companies fetched successfully",
       companyNames
     });
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
+};
+
   
   const getFilteredCompanyNames = async (req, res) => {
     try {
@@ -273,6 +281,38 @@ const myGives = require("../model/myGives")
     }
   }
   
+  const getFilteredGives = async (req, res) => {
+    try {
+      const { companyName } = req.query;
+  
+      const filter = {};
+  
+      if (companyName) {
+        filter.companyName = { $regex: companyName, $options: 'i' }; // Case-insensitive regex match
+      }
+  
+      const result = await Company.aggregate([
+        {
+          $match: filter // Apply filter to the documents
+        },
+        {
+          $project: {
+            _id: 0, // Exclude _id field
+            companyName: 1 // Include companyName field
+          }
+        }
+      ]);
+  
+      // Return the filtered results
+      res.status(200).json({
+        message: "Filtered myGives fetched successfully",
+        companies: result
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
   
   
-module.exports = {Addcompany , getAllCompany,getNonExistingCompanyNames, getFilteredCompanyNames ,getCompanyById ,updateCompanyById ,deleteCompany}
+module.exports = {Addcompany ,getFilteredGives, getAllCompany,getNonExistingCompanyNames, getFilteredCompanyNames ,getCompanyById ,updateCompanyById ,deleteCompany}

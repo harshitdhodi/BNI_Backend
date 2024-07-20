@@ -20,11 +20,11 @@ const memberRegistration = async (req, res) => {
     if (member) {
       return res.send({ status: "failed", message: "Email already exists" });
     }
-  
+  console.log(req.body)
     // Check if all required fields are provided
     if (!name || !email || !mobile || !keyword || !password || !confirm_password || !country || !city || !chapter) {
       console.log("Validation failed.......");
-      return res.send({ status: "failed", message: "All fields are required" });
+      return res.status(400).send({ status: "failed", message: "All fields are required" });
     }
   
     // Check if password and confirm_password match
@@ -312,7 +312,7 @@ const updatememberById = async (req, res) => {
     if (!updatedMember) {
       return res.status(404).json({ message: 'Member not found' });
     }
-
+   
     // Respond with updated fields only
     res.status(200).json({ id: updatedMember._id, updatedFields });
   } catch (error) {
@@ -353,7 +353,7 @@ const Totalmember = async (req, res) => {
 }
 
 
-getAllmemberDropdown = async (req, res) => {
+const getAllmemberDropdown = async (req, res) => {
   try {
       // const { page = 1 } = req.query;
       // const limit = 5;

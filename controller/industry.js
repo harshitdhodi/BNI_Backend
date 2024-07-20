@@ -5,14 +5,14 @@ exports.createIndustry = async (req, res) => {
     try {
         const { name } = req.body;
 
-        const user = await User.findById(req.userId);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ status: "failed", message: "User not found" });
-    }
+    //     const user = await User.findById(req.userId);
+    // if (!user) {
+    //   return res
+    //     .status(404)
+    //     .json({ status: "failed", message: "User not found" });
+    // }
 
-        const industry = new Industry({ name , member: req.userId });
+        const industry = new Industry({ name});
         await industry.save();
         res.status(201).json(industry);
     } catch (error) {
@@ -42,6 +42,29 @@ exports.getAllIndustries = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getIndustries = async (req, res) => {
+    try {
+        const { page = 1 } = req.query;
+        const limit = 5;
+        const count = await Industry.countDocuments();
+        const industries = await Industry.find()
+        .skip((page - 1) * limit) // Skip records for previous pages
+        .limit(limit);
+        res.status(200).json(
+          {
+            data: industries,
+            total: count,
+            currentPage: page,
+            hasNextPage: count > page * limit,
+            message: "Industry fetched successfully"
+          }
+        );
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 // Get an industry by ID
 exports.getIndustryById = async (req, res) => {
