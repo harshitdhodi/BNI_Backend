@@ -15,23 +15,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-  'http://localhost:5173',  // Development
-  'https://nodebackend.sabecho.com'  // Replace with your actual production domain
-];
-
+// Allow CORS requests from any origin
 app.use(cors({
-  origin: function (origin, callback) {
-    // console.log("Origin:", origin); // Log the origin
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error("Not allowed by CORS"); // Log the error
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: '*',
   credentials: true,
-}));  
+}));
 
 // Handle preflight OPTIONS requests
 app.options('*', cors());
@@ -74,7 +62,9 @@ app.get('/countries/:countryCode', (req, res) => {
     res.status(400).send(error);
   }
 });
-app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')))
+
+app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')));
+
 // Route imports
 const user = require("./route/user");
 const country = require("./route/country");
@@ -89,14 +79,16 @@ const mymatch = require("./route/myMaches");
 const image = require("./route/image");
 const industry = require("./route/industry");
 const business = require("./route/business");
-const pdf = require("./route/pdf")
+const pdf = require("./route/pdf");
 const profile = require("./route/profile");
-const company = require("./route/company")
-// Serve static files from the 'dist' directory
+const company = require("./route/company");
+
+// Serve static files from the 'dist' directory (uncomment if needed)
 // app.use(express.static(path.join(__dirname, 'dist')));
+
 app.get('/download/:fileName', (req, res) => {
   const fileName = req.params.fileName;
-  const filePath = path.join(uploadDir, fileName);
+  const filePath = path.join(__dirname, 'pdfs', fileName);
 
   if (fs.existsSync(filePath)) {
       res.download(filePath, fileName, (err) => {
@@ -108,6 +100,7 @@ app.get('/download/:fileName', (req, res) => {
       res.status(404).json({ message: 'File not found' });
   }
 });
+
 // Route setup
 app.use("/user", user); 
 app.use("/country", country);
@@ -121,16 +114,17 @@ app.use("/myAsk", myAsk);
 app.use("/match2", mymatch);
 app.use("/image", image);
 app.use("/industry", industry);
-app.use("/business",business)
-app.use("/pdf",pdf) 
-app.use("/profile",profile) 
-app.use("/company",company) 
+app.use("/business", business);
+app.use("/pdf", pdf);
+app.use("/profile", profile);
+app.use("/company", company);
+
 // Test route
 app.get("/test", (req, res) => {
   res.json("hello world"); 
 });
 
-// Catch-all route to serve index.html for any other request
+// Catch-all route to serve index.html for any other request (uncomment if needed)
 // app.get('*', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 // });
@@ -140,4 +134,3 @@ const port = process.env.PORT || 3002;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
- 
