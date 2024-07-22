@@ -121,7 +121,46 @@ const myMatchesByCompanyName = async (req, res) => {
 //   }
 // };
 
+const getTotalMatches = async (req, res) => {
+  try {
+    const results = await MyAsk.aggregate([
+      {
+        $lookup: {
+          from: 'mygives', // Collection name for MyGives
+          localField: 'companyName',
+          foreignField: 'companyName',
+          as: 'givesMatches'
+        }
+      },
+      {
+        $unwind: '$givesMatches'
+      },
+      {
+        $match: {
+          $expr: {
+            $and: [
+              { $eq: ['$companyName', '$givesMatches.companyName'] },
+              { $eq: ['$dept', '$givesMatches.dept'] }
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalMatches: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const totalMatches = results.length > 0 ? results[0].totalMatches : 0;
+    res.status(200).json({ totalMatches });
+  } catch (error) {
+    console.error('Error getting total matches:', error);
+    res.status(500).json({ error: 'An error occurred while getting total matches' });
+  }
+};
 
 
 
-module.exports = { myMatches , myMatchesByCompanyName };
+module.exports = { myMatches , myMatchesByCompanyName , getTotalMatches };

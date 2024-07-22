@@ -11,7 +11,7 @@ const IndustrySchema = new Schema ( {
     //   },
     updatedAt: { type: Date, default: Date.now } 
 });
-
+ 
 IndustrySchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();
