@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const cron = require("node-cron");
-const cors = require("cors");
+// const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { City } = require('country-state-city');
 const { Country } = require('country-state-city');
@@ -15,26 +15,26 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const allowedOrigins = [
-  'http://localhost:5173',  // Development
-  'https://nodebackend.sabecho.com'  // Replace with your actual production domain
-];
+// const allowedOrigins = [
+//   'http://localhost:5173',  // Development
+//   'https://nodebackend.sabecho.com'  // Replace with your actual production domain
+// ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // console.log("Origin:", origin); // Log the origin
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error("Not allowed by CORS"); // Log the error
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));  
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // console.log("Origin:", origin); // Log the origin
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       console.error("Not allowed by CORS"); // Log the error
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+// }));  
 
 // Handle preflight OPTIONS requests
-app.options('*', cors());
+// app.options('*', cors());
 
 // MongoDB connection
 mongoose.connect(process.env.DATABASE_URI, { 
