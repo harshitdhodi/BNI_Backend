@@ -21,7 +21,7 @@ const saveBase64Image = (base64Data, filename) => {
         console.error('Error writing file:', err);
         return reject(err);
       }
-      resolve(filePath);
+      resolve(filePath); 
     });
   });
 };

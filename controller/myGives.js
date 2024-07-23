@@ -186,6 +186,7 @@ const getmyGivesById = async (req, res) => {
     if (!MyGives) {
       return res.status(404).json({ message: "MyGives not found" });
     }
+    console.log(MyGives)
     res.status(200).json({ data: MyGives });
   } catch (error) {
     console.error(error);
