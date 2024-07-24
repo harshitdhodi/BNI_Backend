@@ -198,21 +198,15 @@ const getFilteredAsks = async (req, res) => {
     if (companyName) {
       filter.companyName = { $regex: companyName, $options: 'i' };
     }
-    
+
     if (dept) {
       filter.dept = { $regex: dept, $options: 'i' };
     }
 
-    // Aggregate pipeline to filter and project all fields
+    // Aggregate pipeline to filter
     const result = await MyAsk.aggregate([
       {
         $match: filter
-      },
-      {
-        $project: {
-          _id: 0 // Exclude _id from the output
-          // All other fields will be included by default
-        }
       }
     ]);
 
@@ -225,6 +219,8 @@ const getFilteredAsks = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 
 module.exports = {

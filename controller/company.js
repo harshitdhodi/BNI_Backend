@@ -314,5 +314,21 @@ const getNonExistingCompanyNames = async (req, res) => {
     }
   };
   
+
+  const TotalCompany = async (req, res) => {
+    try {
+      const TotalCompany = await Company.find().countDocuments();
+        console.log(TotalCompany);
+        return res
+        .status(200)
+        .json({success:true , message:`total Company are ${TotalCompany}`, TotalCompany })
   
-module.exports = {Addcompany ,getFilteredGives, getAllCompany,getNonExistingCompanyNames, getFilteredCompanyNames ,getCompanyById ,updateCompanyById ,deleteCompany}
+    } catch (error) {
+        console.log(error)
+        return res
+        .status(500)
+        .json({success:false , message:"server error"})
+    }
+  }
+  
+module.exports = {Addcompany,TotalCompany ,getFilteredGives, getAllCompany,getNonExistingCompanyNames, getFilteredCompanyNames ,getCompanyById ,updateCompanyById ,deleteCompany}

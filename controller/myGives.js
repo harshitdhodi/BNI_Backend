@@ -243,36 +243,19 @@ const getFilteredGives = async (req, res) => {
     const result = await myGives.aggregate([
       {
         $match: filter
-      },
-      {
-        $project: {
-          _id: 0,
-          companyName: 1,
-          email: 1,
-          phoneNumber: 1,
-          webURL: 1,
-          dept: 1
-        }
       }
     ]);
 
-    const companies = result.map(doc => ({
-      companyName: doc.companyName,
-      email: doc.email,
-      phoneNumber: doc.phoneNumber,
-      webURL: doc.webURL,
-      dept: doc.dept
-    }));
-
     res.status(200).json({
       message: "Filtered myGives fetched successfully",
-      companies
+      data: result
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

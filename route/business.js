@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const mongoose = require('mongoose');
-const { createBusiness, getbusiness,businessList,deletebusiness ,updateBusinessById, getbusinessByuserId,getbusinessbyId, updateImages,updateContactLinks , updateBusinessDetails } = require('../controller/business'); // Adjust the path as needed
+const { createBusiness, getbusiness,businessList,deletebusiness,Totalbusiness ,updateBusinessById, getbusinessByuserId,getbusinessbyId, updateImages,updateContactLinks , updateBusinessDetails } = require('../controller/business'); // Adjust the path as needed
 const { uploadPdf } = require('../middeleware/pdf2');
 const { generatePdfMiddleware } = require('../middeleware/pdfUpload');
 const { requireAuth } = require('../middeleware/requireAuth');
@@ -34,6 +34,7 @@ router.get("/businesssList",bearerAuth,businessList)
 router.get("/getbusinessbyId",bearerAuth,getbusinessbyId)
 router.put("/updateBusinessById",requireAuth,generatePdfMiddleware,updateBusinessById)
 router.get("/getbusinessbymyId",requireAuth,getbusinessbyId)
+router.get("/totalbusiness",requireAuth,Totalbusiness)
 router.delete("/deletebusiness",requireAuth,deletebusiness)
 // Updated route to accept user parameter
 router.post('/createProfile', requireAuth, generatePdfMiddleware, async (req, res) => {

@@ -86,7 +86,6 @@ const updateImages = async (req, res) => {
 };
 
 
-
 // Controller method to create a new Business Business
 const createBusiness = async (req, res) => {
   try {
@@ -136,7 +135,6 @@ const createBusiness = async (req, res) => {
   }
 };
 
-
 // Get all businesss
 const getbusiness = async (req, res) => {
   try {
@@ -160,29 +158,31 @@ const getbusiness = async (req, res) => {
 
 // Get business by ID
 const getbusinessByuserId = async (req, res) => {
-  try {       
-
-    const {userId}  = req.query;
+  try {
+    const { userId } = req.query;
     const { page = 1 } = req.query;
     const limit = 5;
-  
-    // Check if user exists (if validation is needed)
-    const user = await Member.findById(userId)
-    .skip((page - 1) * limit) // Skip records for previous pages
-    .limit(limit);
+
+    // Check if user exists
+    const user = await Member.findById(userId);
     if (!user) {
       return res.status(404).json({ status: "failed", message: "User not found" });
     }
 
-    const myBusiness = await Business.find({ user: userId });
-    const count = await Business.countDocuments();
-   console.log(myBusiness)
-      res.status(200).json({
-        data: myBusiness,
-        total: count,
-        currentPage: page,
-        hasNextPage: count > page * limit,
-        message: "Business fetched successfully",
+    // Fetch business details with pagination and populate user details
+    const myBusiness = await Business.find({ user: userId })
+      .skip((page - 1) * limit) // Skip records for previous pages
+      .limit(limit)
+      .populate('user'); // Populate the user details
+
+    const count = await Business.countDocuments({ user: userId });
+
+    res.status(200).json({
+      data: myBusiness,
+      total: count,
+      currentPage: page,
+      hasNextPage: count > page * limit,
+      message: "Business fetched successfully",
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -262,7 +262,6 @@ const deletebusiness = async (req, res) => {
   }
 };
 
- 
 //get BusinessList 
 const businessList = async (req, res) => {
   try {
@@ -360,6 +359,21 @@ const updateBusinessById = async (req, res) => {
   }
 };
 
+const Totalbusiness = async (req, res) => {
+  try {
+    const Totalbusiness = await Business.find().countDocuments();
+      console.log(Totalbusiness);
+      return res
+      .status(200)
+      .json({success:true , message:`total business are ${Totalbusiness}`, Totalbusiness })
+
+  } catch (error) {
+      console.log(error)
+      return res
+      .status(500)
+      .json({success:false , message:"server error"})
+  }
+}
 
 
 module.exports = {
@@ -372,5 +386,6 @@ module.exports = {
   businessList,
   getbusinessbyId,
   updateBusinessById,
-  deletebusiness
+  deletebusiness,
+  Totalbusiness
 };

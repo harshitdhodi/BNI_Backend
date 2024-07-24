@@ -17,7 +17,7 @@ const addDepartment = async (req, res) => {
 };
 
 // Get all Department
-const getDepartment = async (req, res) => {
+const getDepartment = async (req, res) => { 
     try {
         const { page = 1 } = req.query;
         const limit = 5;
