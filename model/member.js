@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
   bannerImg: {
-    type: String,
-    required: true,
+    type: String
+  
   },
   profileImg: {
-    type: String,
-    required: true,
+    type: String
+  
   },
   name: {
     type: String,
