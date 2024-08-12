@@ -11,28 +11,27 @@ const {
 } = require("../utils/allValidations.js");
 
 const memberRegistration = async (req, res) => {
-  const { name, email, mobile, password,keyword,confirm_password, country, city, chapter } = req.body;
-  const bannerImg = req.files['bannerImg'] ? path.basename(req.files['bannerImg'][0].path) : null;
-        const profileImg = req.files['profileImg'] ? path.basename(req.files['profileImg'][0].path) : null;
+  const { name, email, mobile, password, keyword, confirm_password, country, city, chapter } = req.body;
+  
+  // Optional images
+  const bannerImg = req.files && req.files['bannerImg'] ? path.basename(req.files['bannerImg'][0].path) : null;
+  const profileImg = req.files && req.files['profileImg'] ? path.basename(req.files['profileImg'][0].path) : null;
+
   try {
     // Check if the email already exists
     const member = await Member.findOne({ email: email });
     if (member) {
-      return res.send({ status: "failed", message: "Email already exists" });
+      return res.status(400).send({ status: "failed", message: "Email already exists" });
     }
-  console.log(req.body)
+    
     // Check if all required fields are provided
     if (!name || !email || !mobile || !keyword || !password || !confirm_password || !country || !city || !chapter) {
-      console.log("Validation failed.......");
       return res.status(400).send({ status: "failed", message: "All fields are required" });
     }
   
     // Check if password and confirm_password match
     if (password !== confirm_password) {
-      return res.send({
-        status: "failed",
-        message: "Password and confirm password do not match",
-      });
+      return res.status(400).send({ status: "failed", message: "Password and confirm password do not match" });
     }
   
     // Hash the password
@@ -45,33 +44,28 @@ const memberRegistration = async (req, res) => {
       email,
       mobile,
       country,
-      bannerImg,
-      profileImg,
+      bannerImg,   // Optional
+      profileImg,  // Optional
       city,
       chapter,
       keyword,
       password: hashPassword,
     });
+
+    // Send email confirmation
     const subject = 'Registration Confirmation';
     await sendEmail(email, subject, name, email, mobile);
-    console.log(email)
-    await newMember.save();
-  console.log('newMember')
-    // Send email confirmation
- 
-   
 
-   
+    // Save new member
+    await newMember.save();
 
     // Respond with success message
     res.status(200).send({ status: "success", message: "Member Registered Successfully", newMember });
   } catch (error) {
     console.error(error);
     res.status(500).send({ status: "failed", message: "Unable to register" });
-  } 
-  
+  }
 };
-
  
 // Login from
 const memberLogin = async (req, res) => {
