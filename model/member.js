@@ -2,47 +2,48 @@ const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
   bannerImg: {
-    type: String
-  
+    type: String,
+    default: null, // Set default value to null to make this field optional
   },
   profileImg: {
-    type: String
-  
+    type: String,
+    default: null, // Set default value to null to make this field optional
   },
   name: {
     type: String,
-    require: true,
+    required: true, // Ensure this field is required
     trim: true,
   },
   email: {
     type: String,
-    require: true,
+    required: true, // Ensure this field is required
     trim: true,
+    unique: true // Ensure email is unique
   },
   mobile: {
     type: String,
-    require: true,
+    required: true, // Ensure this field is required
     trim: true,
   },
   country: {
     type: String,
-    required: true,
+    required: true, // Ensure this field is required
   },
   city: {
     type: String,
-    required: true,
+    required: true, // Ensure this field is required
   },
   chapter: {
     type: String,
-    required: true,
+    required: true, // Ensure this field is required
   },
   keyword: [{
     type: String,
-    required: true,
+    required: true, // Ensure this field is required
   }],
   password: {
     type: String,
-    require: true,
+    required: true, // Ensure this field is required
     trim: true,
   },
   resetOTP: {
@@ -50,7 +51,7 @@ const customerSchema = new mongoose.Schema({
   },
   confirm_password: {
     type: String,
-    require: true,
+    required: true, // Ensure this field is required
     trim: true,
   },
 }, {
