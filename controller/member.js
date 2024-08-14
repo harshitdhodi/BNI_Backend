@@ -67,7 +67,7 @@ const memberRegistration = async (req, res) => {
   }
 };
 
- 
+
 // Login from
 const memberLogin = async (req, res) => {
   try {
@@ -347,6 +347,59 @@ const Totalmember = async (req, res) => {
   }
 }
 
+const customerRegistration = async (req, res) => {
+  const { name, email, mobile, password, keyword, confirm_password, country, city, chapter } = req.body;
+
+  try {
+    // Check if the email already exists
+    const member = await Member.findOne({ email });
+    if (member) {
+      return res.status(400).send({ status: "failed", message: "Email already exists" });
+    }
+
+    // Check if all required fields are provided
+    if (!name || !email || !mobile || !keyword || !password || !confirm_password || !country || !city || !chapter) {
+      return res.status(400).send({ status: "failed", message: "All fields are required" });
+    }
+
+    // Check if password and confirm_password match
+    if (password !== confirm_password) {
+      return res.status(400).send({ status: "failed", message: "Password and confirm password do not match" });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    // Save the member to the database
+    const newMember = new Member({
+      name,
+      email,
+      mobile,
+      country,
+      bannerImg:null,   // Optional
+      profileImg:null,  // Optional
+      city,
+      chapter,
+      keyword,
+      password: hashPassword,
+    });
+
+    // Send email confirmation
+    const subject = 'Registration Confirmation';
+    await sendEmail(email, subject, name, email, mobile);
+
+    // Save new member
+    await newMember.save();
+
+    // Respond with success message
+    res.status(200).send({ status: "success", message: "Member Registered Successfully", newMember });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ status: "failed", message: "Unable to register" });
+  }
+};
+
 
 const getAllmemberDropdown = async (req, res) => {
   try {
@@ -380,5 +433,6 @@ module.exports = {
   deletememberById,
   getAllmember,
   Totalmember,
-  getAllmemberDropdown
+  getAllmemberDropdown,
+  customerRegistration
 };
