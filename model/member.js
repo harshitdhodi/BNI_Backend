@@ -3,54 +3,53 @@ const mongoose = require("mongoose");
 const customerSchema = new mongoose.Schema({
   bannerImg: {
     type: String,
-    default: null, // Set default value to null to make this field optional
+    default: null,  // Optional
   },
   profileImg: {
     type: String,
-    default: null, // Set default value to null to make this field optional
+    default: null,  // Optional
   },
   name: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
     trim: true,
   },
   email: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
     trim: true,
-    unique: true // Ensure email is unique
   },
   mobile: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
     trim: true,
   },
   country: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
   },
   city: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
   },
   chapter: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
   },
   keyword: [{
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
   }],
   password: {
     type: String,
-    required: true, // Ensure this field is required
+    required: true,
     trim: true,
   },
   resetOTP: {
     type: String,
-  }
+  },
 }, {
-  versionKey: false // This will remove the __v field
+  versionKey: false, // This will remove the __v field
 });
 
 const Customer = mongoose.model("Member", customerSchema);
