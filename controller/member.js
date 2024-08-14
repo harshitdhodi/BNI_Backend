@@ -12,32 +12,32 @@ const {
 
 const memberRegistration = async (req, res) => {
   const { name, email, mobile, password, keyword, confirm_password, country, city, chapter } = req.body;
-  
-  // Optional images
+
+  // Handle optional images
   const bannerImg = req.files && req.files['bannerImg'] ? path.basename(req.files['bannerImg'][0].path) : null;
   const profileImg = req.files && req.files['profileImg'] ? path.basename(req.files['profileImg'][0].path) : null;
 
   try {
     // Check if the email already exists
-    const member = await Member.findOne({ email: email });
+    const member = await Member.findOne({ email });
     if (member) {
       return res.status(400).send({ status: "failed", message: "Email already exists" });
     }
-    
+
     // Check if all required fields are provided
     if (!name || !email || !mobile || !keyword || !password || !confirm_password || !country || !city || !chapter) {
       return res.status(400).send({ status: "failed", message: "All fields are required" });
     }
-  
+
     // Check if password and confirm_password match
     if (password !== confirm_password) {
       return res.status(400).send({ status: "failed", message: "Password and confirm password do not match" });
     }
-  
+
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
-  
+
     // Save the member to the database
     const newMember = new Member({
       name,
@@ -66,6 +66,7 @@ const memberRegistration = async (req, res) => {
     res.status(500).send({ status: "failed", message: "Unable to register" });
   }
 };
+
  
 // Login from
 const memberLogin = async (req, res) => {
