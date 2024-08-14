@@ -48,12 +48,7 @@ const customerSchema = new mongoose.Schema({
   },
   resetOTP: {
     type: String,
-  },
-  confirm_password: {
-    type: String,
-    required: true, // Ensure this field is required
-    trim: true,
-  },
+  }
 }, {
   versionKey: false // This will remove the __v field
 });
